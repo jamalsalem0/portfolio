@@ -10,16 +10,20 @@ class ProjectsSection extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Container(
-      padding: const EdgeInsets.symmetric(horizontal: 20),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          _buildHeader(),
-
-          const SizedBox(height: 50),
-
-          _buildProjectsGrid(context),
-        ],
+      width: double.infinity,
+      padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 80),
+      child: Center(
+        child: ConstrainedBox(
+          constraints: const BoxConstraints(maxWidth: 1100),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              _buildHeader(),
+              const SizedBox(height: 50),
+              _buildProjectsGrid(context),
+            ],
+          ),
+        ),
       ),
     );
   }
@@ -30,16 +34,17 @@ class ProjectsSection extends StatelessWidget {
       children: [
         FadeInDown(
           child: Row(
+            mainAxisSize: MainAxisSize.min,
             children: [
               Container(
                 padding: const EdgeInsets.all(12),
                 decoration: BoxDecoration(
-                  color: Colors.deepPurple.withOpacity(0.1),
+                  color: Colors.blueAccent.withOpacity(0.1),
                   borderRadius: BorderRadius.circular(12),
                 ),
                 child: const Icon(
                   Icons.video_library_rounded,
-                  color: Colors.deepPurple,
+                  color: Colors.blueAccent,
                   size: 32,
                 ),
               ),
@@ -60,7 +65,11 @@ class ProjectsSection extends StatelessWidget {
           delay: const Duration(milliseconds: 200),
           child: Text(
             "Explore my recent work with live video demos.",
-            style: GoogleFonts.poppins(fontSize: 18, color: Colors.grey[600]),
+            style: GoogleFonts.poppins(
+              fontSize: 16, // صغرت الخط سنة عشان يبقى أنيق
+              color: Colors.grey[600],
+              height: 1.6,
+            ),
           ),
         ),
       ],
@@ -70,16 +79,22 @@ class ProjectsSection extends StatelessWidget {
   Widget _buildProjectsGrid(BuildContext context) {
     return LayoutBuilder(
       builder: (context, constraints) {
-        bool isDesktop = constraints.maxWidth > 900;
+        bool isDesktop = constraints.maxWidth > 850;
+
+        double spacing = 40;
+
         double cardWidth = isDesktop
-            ? (constraints.maxWidth - 40) / 2
+            ? (constraints.maxWidth - spacing) / 2
             : constraints.maxWidth;
 
         return Wrap(
-          spacing: 40,
-          runSpacing: 50,
+          spacing: spacing,
+          alignment: WrapAlignment.start,
           children: ProjectData.list.map((project) {
-            return ProjectCard(project: project, width: cardWidth);
+            return FadeInUp(
+              duration: const Duration(milliseconds: 800),
+              child: ProjectCard(project: project, width: cardWidth),
+            );
           }).toList(),
         );
       },

@@ -1,3 +1,4 @@
+import 'dart:html' as html; 
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
@@ -11,44 +12,51 @@ class HeaderSection extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Stack(
-      children: [
-        Positioned(
-          right: -100,
-          top: -100,
-          child: FadeIn(
-            duration: const Duration(seconds: 2),
-            child: Container(
-              width: 800,
-              height: 800,
-              decoration: BoxDecoration(
-                shape: BoxShape.circle,
-                gradient: RadialGradient(
-                  colors: [
-                    Colors.blueAccent.withOpacity(0.08),
-                    Colors.purpleAccent.withOpacity(0.03),
-                    Colors.transparent,
-                  ],
-                  stops: const [0.0, 0.5, 1.0],
+    return LayoutBuilder(
+      builder: (context, constraints) {
+        bool isMobile = constraints.maxWidth < 900;
+        double screenWidth = constraints.maxWidth;
+
+        return Stack(
+          children: [
+            Positioned(
+              right: isMobile ? -150 : -100,
+              top: isMobile ? -150 : -100,
+              child: FadeIn(
+                duration: const Duration(seconds: 2),
+                child: Container(
+                  width: isMobile ? 500 : 800, 
+                  height: isMobile ? 500 : 800,
+                  decoration: BoxDecoration(
+                    shape: BoxShape.circle,
+                    gradient: RadialGradient(
+                      colors: [
+                        Colors.blueAccent.withOpacity(0.08),
+                        Colors.purpleAccent.withOpacity(0.03),
+                        Colors.transparent,
+                      ],
+                      stops: const [0.0, 0.5, 1.0],
+                    ),
+                  ),
                 ),
               ),
             ),
-          ),
-        ),
 
-        Container(
-          padding: const EdgeInsets.symmetric(vertical: 60, horizontal: 40),
-          child: LayoutBuilder(
-            builder: (context, constraints) {
-              return constraints.maxWidth > 900
-                  ? _buildDesktopLayout()
-                  : _buildMobileLayout();
-            },
-          ),
-        ),
-      ],
+            Container(
+              padding: EdgeInsets.symmetric(
+                vertical: isMobile ? 40 : 60, 
+                horizontal: isMobile ? 20 : 40
+              ),
+              child: isMobile
+                  ? _buildMobileLayout(screenWidth)
+                  : _buildDesktopLayout(),
+            ),
+          ],
+        );
+      },
     );
   }
+
 
   Widget _buildDesktopLayout() {
     return Row(
@@ -57,7 +65,7 @@ class HeaderSection extends StatelessWidget {
       children: [
         Expanded(
           flex: 3,
-          child: _buildTextContent(alignment: CrossAxisAlignment.start),
+          child: _buildTextContent(alignment: CrossAxisAlignment.start, isMobile: false),
         ),
         const SizedBox(width: 20),
         Expanded(
@@ -68,17 +76,22 @@ class HeaderSection extends StatelessWidget {
     );
   }
 
-  Widget _buildMobileLayout() {
+  Widget _buildMobileLayout(double screenWidth) {
+    double orbitSize = screenWidth * 0.85;
+    if (orbitSize > 320) orbitSize = 320;
+
     return Column(
       children: [
-        _buildProfileWithOrbit(size: 280),
-        const SizedBox(height: 50),
-        _buildTextContent(alignment: CrossAxisAlignment.center),
+        const SizedBox(height: 20),
+        _buildProfileWithOrbit(size: orbitSize),
+        const SizedBox(height: 40),
+        _buildTextContent(alignment: CrossAxisAlignment.center, isMobile: true),
       ],
     );
   }
 
-  Widget _buildTextContent({required CrossAxisAlignment alignment}) {
+
+  Widget _buildTextContent({required CrossAxisAlignment alignment, required bool isMobile}) {
     return Column(
       crossAxisAlignment: alignment,
       children: [
@@ -96,17 +109,13 @@ class HeaderSection extends StatelessWidget {
               children: [
                 Pulse(
                   infinite: true,
-                  child: const Icon(
-                    Icons.circle,
-                    size: 10,
-                    color: Colors.green,
-                  ),
+                  child: const Icon(Icons.circle, size: 10, color: Colors.green),
                 ),
                 const SizedBox(width: 8),
                 Text(
-                  "Available for Freelance and Full-time Jobs",
+                  isMobile ? "Available for Work" : "Available for Freelance and Full-time Jobs",
                   style: GoogleFonts.poppins(
-                    fontSize: 12,
+                    fontSize: isMobile ? 12 : 12,
                     fontWeight: FontWeight.w600,
                     color: Colors.blue[800],
                   ),
@@ -117,28 +126,25 @@ class HeaderSection extends StatelessWidget {
         ),
         const SizedBox(height: 20),
 
-        // الاسم + اليد
-        Row(
-          mainAxisSize: MainAxisSize.min,
-          mainAxisAlignment: alignment == CrossAxisAlignment.center
-              ? MainAxisAlignment.center
-              : MainAxisAlignment.start,
+        Wrap(
+          crossAxisAlignment: WrapCrossAlignment.center,
+          alignment: alignment == CrossAxisAlignment.center 
+              ? WrapAlignment.center 
+              : WrapAlignment.start,
           children: [
-            Flexible(
-              child: Text(
-                "Hi, I'm Jamal Salem ",
-                style: GoogleFonts.poppins(
-                  fontSize: 45,
-                  fontWeight: FontWeight.bold,
-                  color: const Color(0xFF1A1A2E),
-                  height: 1.1,
-                ),
+            Text(
+              "Hi, I'm Jamal Salem ",
+              style: GoogleFonts.poppins(
+                fontSize: isMobile ? 32 : 45,
+                fontWeight: FontWeight.bold,
+                color: const Color(0xFF1A1A2E),
+                height: 1.1,
               ),
             ),
             FadeInUp(
               child: SizedBox(
-                height: 200,
-                width: 200,
+                height: isMobile ? 60 : 80, 
+                width: isMobile ? 60 : 80,
                 child: Lottie.network(
                   "https://assets10.lottiefiles.com/packages/lf20_jbrw3hcz.json",
                   fit: BoxFit.contain,
@@ -149,10 +155,10 @@ class HeaderSection extends StatelessWidget {
         ),
 
         SizedBox(
-          height: 50,
+          height: isMobile ? 40 : 50,
           child: DefaultTextStyle(
             style: GoogleFonts.poppins(
-              fontSize: 30,
+              fontSize: isMobile ? 24 : 30, 
               fontWeight: FontWeight.bold,
               color: Colors.blueAccent,
             ),
@@ -161,12 +167,6 @@ class HeaderSection extends StatelessWidget {
               animatedTexts: [
                 TypewriterAnimatedText(
                   ' Flutter Developer',
-                  textStyle: TextStyle(
-                    fontSize: 30,
-                    fontWeight: FontWeight.bold,
-                    color: Colors.blueAccent,
-                    fontFamily: GoogleFonts.poppins().fontFamily,
-                  ),
                   speed: const Duration(milliseconds: 100),
                 ),
               ],
@@ -175,20 +175,25 @@ class HeaderSection extends StatelessWidget {
         ),
         const SizedBox(height: 20),
 
+        // Bio
         FadeInUp(
           delay: const Duration(milliseconds: 600),
           child: SizedBox(
-            width: 500,
+            width: isMobile ? double.infinity : 500, 
             child: Text(
               "Junior Flutter Developer with a strong focus on building high-quality, scalable mobile applications.I specialize in writing clean, maintainable code using CleanArchitecture, applying solid design patterns, and implementing efficient state management solutions.Experienced in developing professional UI/UX, creating smooth animations, and integrating Firebase and RESTful APIs.Passionate about problem solving, performance optimization, and delivering reliable, production-ready apps.",
+           
+
               style: GoogleFonts.poppins(
-                fontSize: 16,
+                fontSize: isMobile ? 14 : 16, 
                 color: Colors.grey[600],
                 height: 1.6,
               ),
               textAlign: alignment == CrossAxisAlignment.center
                   ? TextAlign.center
                   : TextAlign.start,
+              maxLines: isMobile ? 4 : 10,
+              overflow: TextOverflow.ellipsis,
             ),
           ),
         ),
@@ -196,23 +201,23 @@ class HeaderSection extends StatelessWidget {
 
         FadeInUp(
           delay: const Duration(milliseconds: 800),
-          child: Row(
-            mainAxisAlignment: alignment == CrossAxisAlignment.center
-                ? MainAxisAlignment.center
-                : MainAxisAlignment.start,
+          child: Wrap(
+            spacing: 15,
+            runSpacing: 15,
+            alignment: alignment == CrossAxisAlignment.center
+                ? WrapAlignment.center
+                : WrapAlignment.start,
             children: [
               _buildSocialBtn(
                 FontAwesomeIcons.github,
                 "https://github.com/jamalsalem0",
                 Colors.black,
               ),
-              const SizedBox(width: 15),
               _buildSocialBtn(
                 FontAwesomeIcons.linkedin,
                 "https://www.linkedin.com/in/jamalsalem/",
                 const Color(0xFF0077B5),
               ),
-              const SizedBox(width: 15),
               _buildSocialBtn(
                 FontAwesomeIcons.facebook,
                 "https://www.facebook.com/gamal.abdelnasser.56",
@@ -225,17 +230,19 @@ class HeaderSection extends StatelessWidget {
 
         FadeInUp(
           delay: const Duration(milliseconds: 1000),
-          child: Row(
-            mainAxisAlignment: alignment == CrossAxisAlignment.center
-                ? MainAxisAlignment.center
-                : MainAxisAlignment.start,
+          child: Wrap(
+            spacing: 15,
+            runSpacing: 15,
+            alignment: alignment == CrossAxisAlignment.center
+                ? WrapAlignment.center
+                : WrapAlignment.start,
             children: [
               Container(
                 decoration: BoxDecoration(
                   gradient: const LinearGradient(
                     colors: [Color(0xFF1A1A2E), Color(0xFF4B4B85)],
                   ),
-                  borderRadius: BorderRadius.circular(12),
+                  borderRadius: BorderRadius.circular(30), // Circular matches the design
                   boxShadow: [
                     BoxShadow(
                       color: const Color(0xFF1A1A2E).withOpacity(0.3),
@@ -246,29 +253,17 @@ class HeaderSection extends StatelessWidget {
                 ),
                 child: ElevatedButton.icon(
                   onPressed: _launchWhatsApp,
-                  icon: const Icon(
-                    FontAwesomeIcons.whatsapp,
-                    size: 20,
-                    color: Colors.white,
-                  ),
-                  label: const Text(
-                    "Contact Me",
-                    style: TextStyle(color: Colors.white),
-                  ),
+                  icon: const Icon(FontAwesomeIcons.whatsapp, size: 20, color: Colors.white),
+                  label: const Text("Contact Me", style: TextStyle(color: Colors.white)),
                   style: ElevatedButton.styleFrom(
                     backgroundColor: Colors.transparent,
                     shadowColor: Colors.transparent,
-                    padding: const EdgeInsets.symmetric(
-                      horizontal: 30,
-                      vertical: 20,
-                    ),
-                    shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(12),
-                    ),
+                    padding: const EdgeInsets.symmetric(horizontal: 30, vertical: 18),
+                    shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(30)),
                   ),
                 ),
               ),
-              const SizedBox(width: 20),
+
               OutlinedButton.icon(
                 onPressed: _downloadCV,
                 icon: const Icon(Icons.download_rounded, size: 20),
@@ -279,10 +274,7 @@ class HeaderSection extends StatelessWidget {
                 style: OutlinedButton.styleFrom(
                   foregroundColor: Colors.blueAccent,
                   side: const BorderSide(color: Colors.blueAccent, width: 2),
-                  padding: const EdgeInsets.symmetric(
-                    horizontal: 25,
-                    vertical: 18,
-                  ),
+                  padding: const EdgeInsets.symmetric(horizontal: 25, vertical: 18),
                   shape: RoundedRectangleBorder(
                     borderRadius: BorderRadius.circular(30),
                   ),
@@ -296,6 +288,7 @@ class HeaderSection extends StatelessWidget {
     );
   }
 
+
   Widget _buildProfileWithOrbit({required double size}) {
     return SizedBox(
       width: size,
@@ -303,6 +296,7 @@ class HeaderSection extends StatelessWidget {
       child: Stack(
         alignment: Alignment.center,
         children: [
+          // Orbit 1
           Spin(
             infinite: true,
             duration: const Duration(seconds: 20),
@@ -318,10 +312,7 @@ class HeaderSection extends StatelessWidget {
               ),
               child: Align(
                 alignment: Alignment.topCenter,
-                child: _buildFloatingIcon(
-                  Icons.storage,
-                  Colors.orange,
-                ), // Database
+                child: _buildFloatingIcon(Icons.storage, Colors.orange, size),
               ),
             ),
           ),
@@ -329,7 +320,6 @@ class HeaderSection extends StatelessWidget {
           Spin(
             infinite: true,
             duration: const Duration(seconds: 15),
-
             child: Container(
               width: size * 0.65,
               height: size * 0.65,
@@ -342,7 +332,7 @@ class HeaderSection extends StatelessWidget {
               ),
               child: Align(
                 alignment: Alignment.bottomLeft,
-                child: _buildFloatingIcon(Icons.code, Colors.purple), // Code
+                child: _buildFloatingIcon(Icons.code, Colors.purple, size),
               ),
             ),
           ),
@@ -362,10 +352,7 @@ class HeaderSection extends StatelessWidget {
               ),
               child: Align(
                 alignment: Alignment.centerRight,
-                child: _buildFloatingIcon(
-                  Icons.flutter_dash,
-                  Colors.blueAccent,
-                ), // Flutter
+                child: _buildFloatingIcon(Icons.flutter_dash, Colors.blueAccent, size),
               ),
             ),
           ),
@@ -406,7 +393,10 @@ class HeaderSection extends StatelessWidget {
     );
   }
 
-  Widget _buildFloatingIcon(IconData icon, Color color) {
+
+  Widget _buildFloatingIcon(IconData icon, Color color, double parentSize) {
+    double iconSize = parentSize < 300 ? 16 : 20;
+    
     return Spin(
       infinite: true,
       duration: const Duration(seconds: 5),
@@ -423,7 +413,7 @@ class HeaderSection extends StatelessWidget {
             ),
           ],
         ),
-        child: Icon(icon, color: color, size: 20),
+        child: Icon(icon, color: color, size: iconSize),
       ),
     );
   }
@@ -446,6 +436,7 @@ class HeaderSection extends StatelessWidget {
     );
   }
 
+
   void _launchWhatsApp() async {
     String phoneNumber = "201229751200";
     String message = "Hello Jamal, I'd like to discuss a project.";
@@ -457,15 +448,13 @@ class HeaderSection extends StatelessWidget {
     }
   }
 
-  Future<void> _downloadCV() async {
+  void _downloadCV() {
     final String googleDriveUrl =
         "https://drive.google.com/file/d/1-RWcIP6gYm2Tas8zcm94yIYQEHJFB76_/view?usp=drive_link";
-
-    final Uri uri = Uri.parse(googleDriveUrl);
-    if (await canLaunchUrl(uri)) {
-      await launchUrl(uri, mode: LaunchMode.externalApplication);
-    } else {
-      debugPrint("Could not launch CV url");
-    }
+        
+    html.AnchorElement anchorElement = html.AnchorElement(href: googleDriveUrl);
+    anchorElement.download = "Jamal_Salem_CV.pdf";
+    anchorElement.target = "_blank";
+    anchorElement.click();
   }
 }
